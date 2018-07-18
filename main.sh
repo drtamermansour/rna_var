@@ -33,7 +33,7 @@ sample="NA12878"
 sample_accessions=("SRR1258218" "SRR1153470")
 ref_vcf_url="ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/latest/GRCh38/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
 ref_genome="ens_build38_release92"
-ref_genome_url="ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
+ref_genome_url='ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz' ## primaly assembly has unplaced contigs while the vcf has only chromosomes
 
 ## download GIAB data using fastq-dump
 cd $work_dir/data
@@ -44,7 +44,10 @@ for sample_accession in ${sample_accession[@]};do
 done
 wget $ref_vcf_url -O $work_dir/ref_vcf/$sample.vcf.gz
 wget $ref_vcf_url.tbi -O $work_dir/ref_vcf/$sample.vcf.gz.tbi
-wget $ref_genome_url -O $work_dir/genomeDir/$ref_genome.fa.gz
+wget $ref_genome_url -P $work_dir/genomeDir
+gunzip -c $work_dir/genomeDir/Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz > $work_dir/genomeDir/$ref_genome.fa
+rm $work_dir/genomeDir/Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz 
+sed -i 's/^>\(.*\) dna.*/>chr\1/' $work_dir/genomeDir/$ref_genome.fa
 
 ## create a subset sample for testing
 sample_accession="SRR1258218"
@@ -55,7 +58,7 @@ head -n4000000 $work_dir/data/${sample_accession}_2.fastq > $work_dir/data/${sam
 ## Change these variable to define the input files
 sample="NA12878"                     # the reference VCF will be  $ref_vcf/$sample.vcf.gz                
 read="SRR1258218_subset"             # the reads will be R1=$data/${read}_1.fastq   R2=$data/${read}_2.fastq
-ref_genome="ens_build38_release92"   # the reference will be $genomeDir/$ref_genome
+ref_genome="ens_build38_release92"   # the reference will be $genomeDir/$ref_genome.fa
 
 ## version 1
 
