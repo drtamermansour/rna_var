@@ -20,36 +20,47 @@ ref_genome="completegen_37"
 ref_genome_url="ftp://ftp.completegenomics.com/ReferenceFiles/build37.fa.bz2"
 
 ## download
-wget $sample_R1_url -O $work_dir/data/${sample}_1.fastq.gz ## gunzip
-wget $sample_R2_url -O $work_dir/data/${sample}_2.fastq.gz ## gunzip
+wget $sample_R1_url -P $work_dir/data ## gunzip
+wget $sample_R2_url -P $work_dir/data ## gunzip
 wget $ref_vcf_url -O $work_dir/ref_vcf/$sample.vcf.gz
 wget $ref_vcf_url.tbi -O $work_dir/ref_vcf/$sample.vcf.gz.tbi
 wget $ref_genome_url -O $work_dir/genomeDir/$ref_genome.fa.bz2 ## decompress
  
-
-## SRR1258218 (GIAB NA12878) illumina hiseq 2000, 75PE, ~26 million
-## SRR1153470 (GIAB NA12878) illumina hiseq 2000, 101PE, ~115 million
-sample="SRR1258218" ## "SRR1153470"
-sample_accession="SRR1258218" ## "SRR1153470"
+## GIAB NA12878: Multiple datasets 
+## SRR1258218: illumina hiseq 2000, 75PE, ~26 million
+## SRR1153470: illumina hiseq 2000, 101PE, ~115 million
+sample="NA12878"
+sample_accessions=("SRR1258218" "SRR1153470")
 ref_vcf_url="ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/latest/GRCh38/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
 ref_genome="ens_build38_release92"
 ref_genome_url="ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
 
-## To download GIAB data using fastq-dump
-cd ${data}
+## download GIAB data using fastq-dump
+cd $work_dir/data
 module load GNU/4.4.5
 module load SRAToolkit/2.8.2
-fastq-dump --defline-seq '@$sn[_$rn]/$ri' --split-files $sample_accession
-cd $work_dir
+for sample_accession in ${sample_accession[@]};do
+  fastq-dump --defline-seq '@$sn[_$rn]/$ri' --split-files $sample_accession
+done
 wget $ref_vcf_url -O $work_dir/ref_vcf/$sample.vcf.gz
 wget $ref_vcf_url.tbi -O $work_dir/ref_vcf/$sample.vcf.gz.tbi
 wget $ref_genome_url -O $work_dir/genomeDir/$ref_genome.fa.gz
 
-## create a subset sample for testing 
-head -n4000000 $work_dir/data/${sample}_1.fastq > $work_dir/data/${sample}_subset_1.fastq
-head -n4000000 $work_dir/data/${sample}_2.fastq > $work_dir/data/${sample}_subset_2.fastq
+## create a subset sample for testing
+sample_accession="SRR1258218"
+head -n4000000 $work_dir/data/${sample_accession}_1.fastq > $work_dir/data/${sample_accession}_subset_1.fastq
+head -n4000000 $work_dir/data/${sample_accession}_2.fastq > $work_dir/data/${sample_accession}_subset_2.fastq
 ########################################################################################################
-## Varinat Calling ## version 1
+## Varinat Calling 
+## Change these variable to define the input files
+sample="NA12878"                     # the reference VCF will be  $ref_vcf/$sample.vcf.gz                
+read="SRR1258218_subset"             # the reads will be R1=$data/${read}_1.fastq   R2=$data/${read}_2.fastq
+ref_genome="ens_build38_release92"   # the reference will be $genomeDir/$ref_genome
+
+## version 1
+
+
+
 
 
 
