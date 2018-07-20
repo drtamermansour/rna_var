@@ -46,7 +46,7 @@ ref_genome_url='ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo
 cd $data
 module load GNU/4.4.5
 module load SRAToolkit/2.8.2
-for sample_accession in ${sample_accession[@]};do
+for sample_accession in ${sample_accessions[@]};do
   fastq-dump --defline-seq '@$sn[_$rn]/$ri' --split-files $sample_accession
 done
 cd
@@ -60,8 +60,8 @@ sed -i 's/^>\(.*\) dna.*/>chr\1/' $genomeDir/$ref_genome2.fa
 
 ## create a subset sample for testing
 sample_accession="SRR1258218"
-head -n4000000 $work_dir/data/${sample_accession}_1.fastq > $work_dir/data/${sample_accession}_subset_1.fastq
-head -n4000000 $work_dir/data/${sample_accession}_2.fastq > $work_dir/data/${sample_accession}_subset_2.fastq
+head -n4000000 $work_dir/data/${sample_accession[0]}_1.fastq > $work_dir/data/${sample_accession[0]}_subset_1.fastq #Not Sure
+head -n4000000 $work_dir/data/${sample_accession[0]}_2.fastq > $work_dir/data/${sample_accession[0]}_subset_2.fastq #Not Sure
 
 ########################################################################################################
 ##GENOME INDEX USING STAR
@@ -72,13 +72,15 @@ nohup STAR --runMode genomeGenerate --genomeDir $outDir38 --genomeFastaFiles $ge
 ##STAR MAPPING
 cd
 cd rna_var
-mkdir -p {star_map_NA19240,star_map_SRR1258218,star_map_SRR1153470}
+mkdir -p {star_map_NA19240,star_map_SRR1258218,star_map_SRR1153470,star_map_SRR1258218_supset}
 # NA19240 Mapping
 nohup STAR --genomeDir $outDir37/* --readFilesIn $data/ERR1050075_1.fastq,$data/ERR1050075_2.fastq --outFileNamePrefix star_map_NA19240 --runThreadN 5
 # SRR1258218 Mapping
 nohup STAR --genomeDir $outDir38/* --readFilesIn $data/SRR1258218_1.fastq,$data/SRR1258218_2.fastq --outFileNamePrefix star_map_SRR1258218 --runThreadN 5
 # SRR1153470 Mapping
 nohup STAR --genomeDir $outDir38/* --readFilesIn $data/SRR1153470_1.fastq,$data/SRR1153470_2.fastq --outFileNamePrefix star_map_SRR1153470 --runThreadN 5
+# SRR1258218 small supset Mapping
+nohup STAR --genomeDir $outDir38/* --readFilesIn $data/SRR1258218_subset_1.fastq,$data/SRR1258218_subset_2.fastq --outFileNamePrefix star_map_SRR1258218_supset --runThreadN 5
 ## Varinat Calling 
 ## Change these variable to define the input files
 sample="NA12878"                     # the reference VCF will be  $ref_vcf/$sample.vcf.gz                
