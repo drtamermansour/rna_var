@@ -69,6 +69,16 @@ head -n4000000 $work_dir/data/${sample_accession}_2.fastq > $work_dir/data/${sam
 nohup STAR --runMode genomeGenerate --genomeDir $outDir37 --genomeFastaFiles $genomeDir/$ref_genome1.fa --runThreadN 5
 #"ens_build38_release92
 nohup STAR --runMode genomeGenerate --genomeDir $outDir38 --genomeFastaFiles $genomeDir/$ref_genome2.fa --runThreadN 5
+##STAR MAPPING
+cd
+cd rna_var
+mkdir -p {star_map_NA19240,star_map_SRR1258218,star_map_SRR1153470}
+# NA19240 Mapping
+nohup STAR --genomeDir $outDir37/* --readFilesIn $data/ERR1050075_1.fastq,$data/ERR1050075_2.fastq --outFileNamePrefix star_map_NA19240 --runThreadN 5
+# SRR1258218 Mapping
+nohup STAR --genomeDir $outDir38/* --readFilesIn $data/SRR1258218_1.fastq,$data/SRR1258218_2.fastq --outFileNamePrefix star_map_SRR1258218 --runThreadN 5
+# SRR1153470 Mapping
+nohup STAR --genomeDir $outDir38/* --readFilesIn $data/SRR1153470_1.fastq,$data/SRR1153470_2.fastq --outFileNamePrefix star_map_SRR1153470 --runThreadN 5
 ## Varinat Calling 
 ## Change these variable to define the input files
 sample="NA12878"                     # the reference VCF will be  $ref_vcf/$sample.vcf.gz                
