@@ -38,7 +38,8 @@ sample_accessions=("SRR1258218" "SRR1153470")
 ref_vcf_url="ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release/NA12878_HG001/latest/GRCh38/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.vcf.gz"
 ref_genome="ens_build38_release92"
 ref_genome_url='ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz' ## primaly assembly has unplaced contigs while the vcf has only chromosomes
-ref_annot='ftp://ftp.ensembl.org/pub/release-92/gtf/homo_sapiens/Homo_sapiens.GRCh38.92.gtf.gz'
+ref_annot_url='ftp://ftp.ensembl.org/pub/release-92/gtf/homo_sapiens/Homo_sapiens.GRCh38.92.gtf.gz'
+ref_annot="Homo_sapiens.GRCh38.92.gtf"
 
 ## download GIAB data using fastq-dump
 cd $work_dir/data
@@ -47,21 +48,21 @@ module load SRAToolkit/2.8.2
 wget ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR115/SRR1153470/SRR1153470.sra
 wget ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR125/SRR1258218/SRR1258218.sra
 wget $ref_vcf_url -O $work_dir/ref_vcf/$sample.vcf.gz
-gunzip $ref_vcf/$sample.vcf.gz#gunzip
+gunzip $ref_vcf/$sample.vcf.gz
 wget $ref_vcf_url.tbi -O $work_dir/ref_vcf/$sample.vcf.gz.tbi
 wget $ref_genome_url -P $work_dir/genomeDir
 gunzip -c $work_dir/genomeDir/Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz > $work_dir/genomeDir/$ref_genome.fa
 rm $work_dir/genomeDir/Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz 
 sed -i 's/^>\(.*\) dna.*/>chr\1/' $work_dir/genomeDir/$ref_genome.fa
-wget $ref_annot -O $anno_dir
-mv work_dir/annotation/pub/release-92/gtf/homo_sapiens/*.gtf.gz $work_dir/annotation #the annotation file downloaded in this sequence of folders
-gunzip $work_dir/annotation/*.gtf.gz
+wget $ref_annot_url -O $anno_dir
+mv work_dir/annotation/pub/release-92/gtf/homo_sapiens/$ref_annot.gz $work_dir/annotation #the annotation file downloaded in this sequence of folders
+gunzip $work_dir/annotation/$ref_annot.gz
 
 #fastq-dump for SRR1153470 and SRR1258218
-fastq-dump --defline-seq '@$sn[_$rn]/$ri' --split-files $work_dir/data/SRR1153470.sra
-fastq-dump --defline-seq '@$sn[_$rn]/$ri' --split-files $work_dir/data/SRR1258218.sra
-rm $work_dir/data/SRR1153470.sra
-rm $work_dir/data/SRR1258218.sra
+for sample_accession in ${sample_accessions[@]};do
+  fastq-dump --defline-seq '@$sn[_$rn]/$ri' --split-files $work_dir/data/${sample_accession}.sra
+  rm $work_dir/data/${sample_accession}.sra
+done
 
 ## create a subset sample for testing
 sample_accession="SRR1258218"
