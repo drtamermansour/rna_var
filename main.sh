@@ -59,7 +59,7 @@ wget $ref_genome_url -P $genomeDir
 gunzip -c $work_dir/genomeDir/Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz > $genomeDir/$ref_genome.fa
 rm $work_dir/genomeDir/Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz 
 sed -i 's/^>\(.*\) dna.*/>chr\1/' $work_dir/genomeDir/$ref_genome.fa
-wget $ref_annot_url -P $genomeDir && && gunzip $genomeDir/$ref_annot.gz
+wget $ref_annot_url -P $genomeDir && gunzip $genomeDir/$ref_annot.gz
 
 ## create a subset sample for testing
 sample_accession="SRR1258218"
